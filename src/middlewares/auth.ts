@@ -1,19 +1,17 @@
 import { Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-// shared
 import { AuthorizedRequest } from '../shared/types/authorized-request';
 import { httpCodeResponseName } from '../shared/http-code-response-name';
 import { errorMessages } from '../shared/errors/error-messages';
 import { JWT_SECRET } from '../shared/env';
 
 export const authMiddleware = (req: AuthorizedRequest, res: Response, next: NextFunction) => {
-  const { authorization } = req.headers;
+  const token = req.cookies.jwt;
 
-  if (!authorization || !authorization.startsWith('Bearer ')) {
+  if (!token) {
     return res.status(httpCodeResponseName.unauthorized).send({ message: errorMessages.needAuth });
   }
 
-  const token = authorization.replace('Bearer ', '');
   let payload: jwt.JwtPayload | string;
 
   try {
